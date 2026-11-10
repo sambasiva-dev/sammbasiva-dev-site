@@ -6,6 +6,9 @@ import expressiveCode from 'astro-expressive-code';
 
 export default defineConfig({
   outDir: './docs',
+  build:{
+    assets: 'assets'
+  },
   devToolbar: {
     enabled: false,
   },

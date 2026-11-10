@@ -1,0 +1,44 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { site } from '../data/site';
+import {
+  Landmark,
+  ShieldCheck,
+  ShoppingCart,
+  Store,
+  Truck,
+} from 'lucide-astro';
+---
+<SiteLayout title="About — YourName.dev" description="Career journey, engineering philosophy, and technology leadership." currentPath="/about/">
+  <section class="page-hero container">
+    <p class="eyebrow">ABOUT ME</p>
+    <h1>From mobile development to <span class="text-gradient">modern systems.</span></h1>
+    <p>{site.intro}</p>
+  </section>
+  <section class="section container about-grid">
+    <div class="about-main">
+      <h2>The engineering journey</h2>
+      <div class="timeline">
+        <article class="timeline-item"><span class="timeline-dot"></span><p class="eyebrow">EARLY CAREER</p><h3>Mobile and enterprise Java</h3><p>Started with J2ME mobile applications, then moved into J2EE and enterprise application development.</p></article>
+        <article class="timeline-item"><span class="timeline-dot"></span><p class="eyebrow">FULL-STACK ENGINEERING</p><h3>Backend and modern frontend</h3><p>Built full-stack applications across Java, Spring Boot, .NET, Node.js, and JavaScript. Experienced with React.js, Angular, Vue.js, and micro-frontend architectures for scalable, modern web experiences.</p></article>
+        <article class="timeline-item"><span class="timeline-dot"></span><p class="eyebrow">ARCHITECTURE & LEADERSHIP</p><h3>Designing systems and growing teams</h3><p>Leading solution design, enterprise architecture, engineering practices, DevOps, cloud-native applications, and mentoring teams. Focused on building scalable systems and helping engineers grow.</p></article>
+        <article class="timeline-item"><span class="timeline-dot"></span><p class="eyebrow">DATA ENGINEERING &amp; PLATFORMS</p><h3>Building data-intensive platforms</h3><p>designing and integrating data platforms using Apache NiFi, Apache Druid, StarRocks, and Azure Data Lake. Worked with graph and distributed data technologies including JanusGraph, Cassandra, Redis, and Elasticsearch.</p></article>
+        <article class="timeline-item"><span class="timeline-dot"></span><p class="eyebrow">EMERGING TECHNOLOGIES</p><h3>AI, agents, and distributed platforms</h3><p>Exploring Claude-based applications, agent workflows, RAG, blockchain, and data-intensive platforms.</p></article>
+      </div>
+    </div>
+    <aside class="about-aside">
+      <div class="profile-card"><span class="profile-symbol">⌘</span><p class="eyebrow">ENGINEERING PHILOSOPHY</p><h3>Build thoughtfully. Explain clearly. Keep learning.</h3><p>Strong engineering combines sound architecture, maintainable code, delivery discipline, and a team that understands why decisions were made.</p></div>
+      <div class="profile-card"><p class="eyebrow">INDUSTRIES</p>
+        <div class="tag-list">
+          <span class="tag"><Landmark size={17} color="#3e9392" /> Banking</span>
+          <span class="tag"><ShieldCheck size={17} color="#3e9392"/> Insurance</span>
+          <span class="tag"><ShoppingCart size={17} color="#3e9392"/> eCommerce</span>
+          <span class="tag"><Store size={17} color="#3e9392"/> Retail</span>
+          <span class="tag"><Truck size={17} color="#3e9392"/> Supply Chain</span>
+        </div>
+      </div>
+      <div class="profile-card"><p class="eyebrow">CERTIFICATIONS</p><div class="tag-list">{['Sun Certified Enterprise Architect','TOGAF 10 Foundation','IBM RAG and Agentic AI','Claude Certified Architect – Foundations'].map(item => <span class="tag">{item}</span>)}</div></div>
+      <div class="profile-card"><p class="eyebrow">CONNECT</p><a class="card-link" href={site.github} target="_blank" rel="noreferrer">GitHub ↗</a><a class="card-link" href={site.linkedin} target="_blank" rel="noreferrer">LinkedIn ↗</a><a class="card-link" href={`mailto:${site.email}`}>Email ↗</a></div>
+    </aside>
+  </section>
+</SiteLayout>

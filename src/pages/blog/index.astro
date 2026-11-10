@@ -1,0 +1,53 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { getCollection } from 'astro:content';
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort((a,b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const categories = ['All', ...new Set(posts.map(post => post.data.category))];
+---
+<SiteLayout title="Engineering Blog — YourName.dev" description="Technical articles on architecture, AI engineering, cloud, frontend, and developer tooling." currentPath="/blog/">
+  <section class="page-hero container">
+    <p class="eyebrow">THE ENGINEERING JOURNAL</p>
+    <h1>Ideas, patterns, and <span class="text-gradient">implementation.</span></h1>
+    <p>Detailed notes from real-world engineering: how systems fit together, why design decisions matter, and how to implement them.</p>
+    <div class="search-wrap"><span>⌕</span><input id="post-search" type="search" placeholder="Search articles, tags, technologies..." aria-label="Search articles" /></div>
+  </section>
+  <section class="section container">
+    <div class="filter-row" id="category-filters">
+      {categories.map((category, index) => <button class:list={['filter-button', index === 0 ? 'active' : '']} type="button" data-category={category}>{category}</button>)}
+    </div>
+    <div class="article-grid" id="article-grid">
+      {posts.map(post => <div class="filterable-post" data-category={post.data.category} data-search={`${post.data.title} ${post.data.description} ${post.data.tags.join(' ')} ${post.data.category}`.toLowerCase()}><ArticleCard post={post} /></div>)}
+    </div>
+    <p class="no-results" id="no-results" hidden>No articles match your search. Try another keyword or category.</p>
+  </section>
+</SiteLayout>
+<script>
+  const search = document.querySelector<HTMLInputElement>('#post-search');
+  const filters = [...document.querySelectorAll<HTMLButtonElement>('[data-category]')];
+  const cards = [...document.querySelectorAll<HTMLElement>('.filterable-post')];
+  const noResults = document.querySelector<HTMLElement>('#no-results');
+  let category = 'All';
+  function update() {
+    const query = search?.value.trim().toLowerCase() ?? '';
+    let visible = 0;
+    cards.forEach(card => {
+      const matchCategory = category === 'All' || card.dataset.category === category;
+      const matchSearch = (card.dataset.search ?? '').includes(query);
+      card.hidden = !(matchCategory && matchSearch);
+      if (!card.hidden) visible++;
+    });
+    if (noResults) noResults.hidden = visible > 0;
+  }
+  search?.addEventListener('input', update);
+  filters.forEach(button => button.addEventListener('click', () => {
+    category = button.dataset.category ?? 'All';
+    filters.forEach(item => item.classList.toggle('active', item === button));
+    update();
+  }));
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('category')) {
+    const target = filters.find(button => button.dataset.category?.toLowerCase() === params.get('category')?.toLowerCase());
+    target?.click();
+  }
+</script>

@@ -1,0 +1,41 @@
+---
+import { getCollection, render } from 'astro:content';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
+import Mermaid from '../../components/Mermaid.astro';
+import CodeTabs from '../../components/CodeTabs.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map(post => ({ params: { slug: post.id.replace(/\.(md|mdx)$/, '') }, props: { post } }));
+}
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+const date = post.data.pubDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+---
+<SiteLayout title={`${post.data.title} — YourName.dev`} description={post.data.description} currentPath="/blog/">
+  <div class="container article-layout">
+    <aside class="article-sidebar">
+      <a class="back-link" href="/blog/">← All articles</a>
+      <p class="sidebar-label">ARTICLE</p>
+      <p class="sidebar-current">{post.data.title}</p>
+      <p class="sidebar-label">TOPICS</p>
+      <div class="tag-list">{post.data.tags.map(tag => <a class="tag" href={`/blog/?q=${encodeURIComponent(tag)}`}>{tag}</a>)}</div>
+    </aside>
+    <article class="prose article-main">
+      <header class="article-header">
+        <p class="eyebrow">{post.data.category.toUpperCase()}</p>
+        <h1>{post.data.title}</h1>
+        <p class="article-deck">{post.data.description}</p>
+        <div class="article-byline"><span>{date}</span><span>·</span><span>{post.data.readingTime ?? 'Engineering notes'}</span></div>
+      </header>
+      <div class="article-content"><Content components={{ Mermaid, CodeTabs }} /></div>
+      <footer class="article-end">
+        <p class="eyebrow">KEEP EXPLORING</p>
+        <h2>Good ideas get better when shared.</h2>
+        <a class="button button-secondary" href="/blog/">More engineering notes →</a>
+      </footer>
+    </article>
+    <aside class="toc-sidebar"><TableOfContents headings={headings} /></aside>
+  </div>
+</SiteLayout>

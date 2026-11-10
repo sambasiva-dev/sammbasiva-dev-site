@@ -1,0 +1,5 @@
+---
+const { headings = [] } = Astro.props;
+const items = headings.filter((heading: { depth: number }) => heading.depth >= 2 && heading.depth <= 3);
+---
+{items.length > 0 && <div class="toc"><p class="sidebar-label">ON THIS PAGE</p><nav aria-label="Table of contents">{items.map((heading: { depth: number; slug: string; text: string }) => <a class:list={['toc-link', heading.depth === 3 ? 'toc-sub' : '']} href={`#${heading.slug}`}>{heading.text}</a>)}</nav></div>}

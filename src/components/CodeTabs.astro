@@ -1,0 +1,50 @@
+---
+interface Example {
+  label: string;
+  language: string;
+  code: string;
+}
+const { examples = [] } = Astro.props as { examples: Example[] };
+const id = `code-tabs-${Math.random().toString(36).slice(2, 9)}`;
+---
+<div class="code-tabs" data-code-tabs id={id}>
+  <div class="code-tabs-bar" role="tablist" aria-label="Code language">
+    {examples.map((example, index) => (
+      <button class:list={['code-tab', index === 0 ? 'selected' : '']} role="tab" aria-selected={index === 0 ? 'true' : 'false'} type="button" data-tab={index}>{example.label}</button>
+    ))}
+    <span class="code-tabs-spacer"></span>
+    <button class="copy-code" type="button" aria-label="Copy code" title="Copy code">Copy</button>
+  </div>
+  {examples.map((example, index) => (
+    <pre class="code-panel" data-panel={index} hidden={index !== 0}><code class={`language-${example.language}`}>{example.code}</code></pre>
+  ))}
+</div>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-code-tabs]').forEach((root) => {
+    if (root.dataset.initialized) return;
+    root.dataset.initialized = 'true';
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-tab]')];
+    const panels = [...root.querySelectorAll<HTMLElement>('[data-panel]')];
+    const copy = root.querySelector<HTMLButtonElement>('.copy-code');
+    tabs.forEach((tab) => tab.addEventListener('click', () => {
+      const selected = tab.dataset.tab;
+      tabs.forEach((item) => {
+        const active = item === tab;
+        item.classList.toggle('selected', active);
+        item.setAttribute('aria-selected', String(active));
+      });
+      panels.forEach(panel => panel.hidden = panel.dataset.panel !== selected);
+    }));
+    copy?.addEventListener('click', async () => {
+      const active = panels.find(panel => !panel.hidden);
+      const text = active?.innerText ?? '';
+      try {
+        await navigator.clipboard.writeText(text);
+        copy.textContent = 'Copied';
+        window.setTimeout(() => { copy.textContent = 'Copy'; }, 1400);
+      } catch {
+        copy.textContent = 'Select code';
+      }
+    });
+  });
+</script>

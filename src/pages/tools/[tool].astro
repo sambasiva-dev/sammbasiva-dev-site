@@ -1,0 +1,9 @@
+---
+import ToolsWorkspace from '../../components/ToolsWorkspace.astro';
+export function getStaticPaths() {
+    const tools = ['json-formatter','base64','json-compare','xml-formatter','xml-compare','url-encode','jwt-inspector','uuid-generator','timestamp-converter','hash-generator'];
+    return tools.map((tool) => ({ params: { tool }, props: { selectedTool: tool } }));
+}
+const { selectedTool } = Astro.props;
+---
+<ToolsWorkspace selectedTool={selectedTool} />

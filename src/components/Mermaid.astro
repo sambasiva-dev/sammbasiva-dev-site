@@ -1,0 +1,23 @@
+---
+const { code = '' } = Astro.props;
+---
+<div class="mermaid-wrap">
+  <pre class="mermaid"><code>{code}</code></pre>
+  <p class="diagram-caption">Architecture diagram · Select or copy the source from the article Markdown to adapt it.</p>
+</div>
+<script>
+  import mermaid from 'mermaid';
+  mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'strict' });
+  const renderDiagrams = async () => {
+    const nodes = [...document.querySelectorAll<HTMLElement>('.mermaid:not([data-rendered])')];
+    if (!nodes.length) return;
+    nodes.forEach(node => node.dataset.rendered = 'true');
+    try {
+      await mermaid.run({ nodes });
+    } catch (error) {
+      console.error('Unable to render Mermaid diagram', error);
+      nodes.forEach(node => node.classList.add('mermaid-error'));
+    }
+  };
+  renderDiagrams();
+</script>

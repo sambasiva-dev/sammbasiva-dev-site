@@ -1,0 +1,20 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { site } from '../data/site';
+---
+<SiteLayout title="Expertise — YourName.dev" description="Technology experience across backend, frontend, cloud, AI, data, and enterprise domains." currentPath="/expertise/">
+  <section class="page-hero container">
+    <p class="eyebrow">TECHNICAL BREADTH</p>
+    <h1>Broad experience. <span class="text-gradient">Practical depth.</span></h1>
+    <p>A technology landscape shaped by hands-on engineering, solution design, delivery, and mentoring across enterprise domains.</p>
+  </section>
+  <section class="section container">
+    <div class="skills-grid">
+      {Object.entries(site.skills).map(([group, skills]) => <section class="skill-group">
+        <h2>{group}</h2>
+        <div class="tag-list">{skills.map(skill => <span class="tag">{skill}</span>)}</div>
+      </section>)}
+    </div>
+    <div class="callout"><strong>My approach</strong><p>Choose technology based on system constraints, team capability, operational needs, and long-term maintainability—not novelty alone.</p></div>
+  </section>
+</SiteLayout>

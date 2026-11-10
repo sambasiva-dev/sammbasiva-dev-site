@@ -1,0 +1,28 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+const projects = [
+  { number:'01', title:'Agentic RAG Toolkit', category:'AI Engineering', description:'A reference implementation for retrieval, tool orchestration, grounded generation, and evaluation.', stack:['Python','LangChain','Vector DB'], status:'Reference project' },
+  { number:'02', title:'Kong API Gateway Plugin', category:'API Management', description:'A plugin engineering case study covering request lifecycle, configuration, error handling, and automated tests.', stack:['Kong','Lua','REST'], status:'Technical case study' },
+  { number:'03', title:'Micro Frontend Starter', category:'Frontend Architecture', description:'An example foundation for modular frontends, shared navigation, independent delivery, and build tooling.', stack:['React','Webpack','Vite'], status:'Starter concept' },
+  { number:'04', title:'Reusable CI/CD Templates', category:'DevOps', description:'Reusable pipeline patterns for consistent validation, build, security checks, and release automation.', stack:['GitHub Actions','Docker','CI/CD'], status:'Reference project' }
+];
+---
+<SiteLayout title="Projects & Tools — YourName.dev" description="Engineering case studies, developer tools, and architecture examples." currentPath="/projects/">
+  <section class="page-hero container">
+    <p class="eyebrow">SELECTED ENGINEERING WORK</p>
+    <h1>Systems built with <span class="text-gradient">purpose.</span></h1>
+    <p>Tools, reference implementations, and architecture case studies. Each project should explain the problem, the decisions, and what was learned.</p>
+  </section>
+  <section class="section container">
+    <div class="project-grid">
+      {projects.map(project => <article class="project-card">
+        <div class="project-card-top"><span class="project-number">{project.number}</span><span class="project-status">{project.status}</span></div>
+        <p class="eyebrow">{project.category.toUpperCase()}</p>
+        <h2>{project.title}</h2><p>{project.description}</p>
+        <div class="tag-list">{project.stack.map(item => <span class="tag">{item}</span>)}</div>
+        <a class="card-link" href={`mailto:your.email@example.com?subject=${encodeURIComponent(`Project details: ${project.title}`)}`}>Ask about this project <span>↗</span></a>
+      </article>)}
+    </div>
+    <p class="content-note">These are starter project concepts. Replace them with real repositories, demos, and case studies before presenting them as completed work.</p>
+  </section>
+</SiteLayout>

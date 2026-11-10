@@ -9,6 +9,28 @@ export default defineConfig({
   build:{
     assets: 'assets'
   },
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          assetFileNames: (assetInfo) => {
+            let name = assetInfo.name ?? '';
+            if (name.startsWith('_')) {
+              name = name.substring(1);
+            }
+            return `assets/${name}-[hash][extname]`;
+          },
+          chunkFileNames: (chunkInfo) => {
+            let name = chunkInfo.name ?? '';
+            if (name.startsWith('_')) {
+              name = name.substring(1);
+            }
+            return `assets/${name}-[hash].js`;
+          },
+        },
+      },
+    },
+  },
   devToolbar: {
     enabled: false,
   },

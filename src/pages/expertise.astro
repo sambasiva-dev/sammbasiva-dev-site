@@ -1,6 +1,26 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
 import { site } from '../data/site';
+import { techLogos, domainIcons } from '../data/techLogos';
+import { Landmark, ShieldCheck, ShoppingCart, Store, Truck } from 'lucide-astro';
+
+const domainComponents = { Landmark, ShieldCheck, ShoppingCart, Store, Truck };
+
+// Dark brand colours (e.g. Cypress) disappear on the dark background, so lift them to a light grey.
+function luminance(hex: string) {
+  const [r, g, b] = [0, 2, 4].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+const logoFill = (hex: string) => (luminance(hex) < 0.12 ? '#cbd5e1' : `#${hex}`);
+
+// Monogram for skills without a Simple Icons logo: "Azure DevOps" -> "AD", "Azure Data Lake" -> "ADL", "AWS" -> "AW".
+const monogram = (name: string) => {
+  const words = name.split(/[\s.]+/).filter(Boolean);
+  return (words.length > 1 ? words.slice(0, 3).map((w) => w[0]).join('') : name.slice(0, 2)).toUpperCase();
+};
 ---
 <SiteLayout title="Expertise — YourName.dev" description="Technology experience across backend, frontend, cloud, AI, data, and enterprise domains." currentPath="/expertise/">
   <section class="page-hero container">
@@ -12,7 +32,21 @@ import { site } from '../data/site';
     <div class="skills-grid">
       {Object.entries(site.skills).map(([group, skills]) => <section class="skill-group">
         <h2>{group}</h2>
-        <div class="tag-list">{skills.map(skill => <span class="tag">{skill}</span>)}</div>
+        <div class="tag-list">{skills.map(skill => {
+          if (group === 'Domains') {
+            const Icon = domainComponents[domainIcons[skill]];
+            return <span class="tag skill-chip"><Icon size={15} color="#3e9392" /> {skill}</span>;
+          }
+          const logo = techLogos[skill];
+          return (
+            <span class="tag skill-chip">
+              {logo
+                ? <svg class="skill-logo" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill={logoFill(logo.hex)} d={logo.path} /></svg>
+                : <span class="skill-monogram" aria-hidden="true">{monogram(skill)}</span>}
+              {skill}
+            </span>
+          );
+        })}</div>
       </section>)}
     </div>
     <div class="callout"><strong>My approach</strong><p>Choose technology based on system constraints, team capability, operational needs, and long-term maintainability—not novelty alone.</p></div>

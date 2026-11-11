@@ -3,7 +3,7 @@ title: "Spec-Driven Delivery with OpenSpec and Claude Code: How the sdlc-workflo
 description: "A walkthrough of the openspec-sdlc-starter package: the eleven-artifact schema, persona subagents, approval gates, post-apply batch, final review and cost tracking."
 pubDate: 2026-11-11
 tags: ["OpenSpec", "Claude Code", "SDLC", "AI Agents", "Spec-Driven Development"]
-category: "Engineering"
+category: "AI Engineering"
 draft: false
 featured: false
 readingTime: "14 min read"

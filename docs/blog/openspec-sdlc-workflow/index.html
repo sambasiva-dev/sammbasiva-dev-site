@@ -1,0 +1,333 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="generator" content="Astro v5.18.2"><meta name="description" content="A walkthrough of the openspec-sdlc-starter package: the eleven-artifact schema, persona subagents, approval gates, post-apply batch, final review and cost tracking."><meta name="theme-color" content="#0b1120"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><title>Spec-Driven Delivery with OpenSpec and Claude Code: How the sdlc-workflow Starter Works — YourName.dev</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><!-- <ClientRouter />--><link rel="stylesheet" href="/assets/tool_.css-D2nddOfh.css"></head> <body> <header class="site-header"> <div class="container nav-wrap"> <a class="brand" href="/" aria-label="sambasiva.dev home"> <span class="brand-mark">S</span><span>sambasiva.dev</span> </a> <nav class="desktop-nav" aria-label="Main navigation"> <a class="nav-link" href="/">Home</a><a class="nav-link active" href="/blog/">Blog</a><a class="nav-link" href="/projects/">Projects</a><a class="nav-link" href="/expertise/">Expertise</a><a class="nav-link" href="/about/">About</a> <a class="nav-link" href="/tools/">Tools</a> </nav> <div class="nav-actions"> <a class="icon-link github-link" href="https://github.com/YOUR_GITHUB_USERNAME" target="_blank" rel="noreferrer" aria-label="GitHub">GH ↗</a> <button class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme"> <span class="theme-icon" aria-hidden="true">☼</span> </button> <script type="module">const e=document.querySelector(".theme-toggle"),o=document.documentElement,c=localStorage.getItem("theme");c==="light"&&(o.dataset.theme="light");e?.addEventListener("click",()=>{const t=o.dataset.theme==="light"?"dark":"light";o.dataset.theme=t,localStorage.setItem("theme",t);const n=e.querySelector(".theme-icon");n&&(n.textContent=t==="light"?"☾":"☼")});if(e&&o.dataset.theme==="light"){const t=e.querySelector(".theme-icon");t&&(t.textContent="☾")}</script> <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu"><span></span><span></span></button> </div> </div> <nav id="mobile-nav" class="mobile-nav" aria-label="Mobile navigation" hidden> <a class="nav-link" href="/">Home</a><a class="nav-link active" href="/blog/">Blog</a><a class="nav-link" href="/projects/">Projects</a><a class="nav-link" href="/expertise/">Expertise</a><a class="nav-link" href="/about/">About</a> <a class="nav-link" href="/tools/">Tools & utilities ↗</a> <a class="nav-link" href="mailto:sivarunreddy@gmail.com">Contact ↗</a> <a class="nav-link" href="https://github.com/YOUR_GITHUB_USERNAME" target="_blank" rel="noreferrer">GitHub ↗</a> </nav> </header> <script type="module">const e=document.querySelector(".menu-toggle"),n=document.querySelector("#mobile-nav");e?.addEventListener("click",()=>{const t=e.getAttribute("aria-expanded")==="true";e.setAttribute("aria-expanded",String(!t)),n&&(n.hidden=t)});</script> <main> <div class="container article-layout"> <aside class="article-sidebar"> <a class="back-link" href="/blog/">← All articles</a> <p class="sidebar-label">ARTICLE</p> <p class="sidebar-current">Spec-Driven Delivery with OpenSpec and Claude Code: How the sdlc-workflow Starter Works</p> <p class="sidebar-label">TOPICS</p> <div class="tag-list"><a class="tag" href="/blog/?q=OpenSpec">OpenSpec</a><a class="tag" href="/blog/?q=Claude%20Code">Claude Code</a><a class="tag" href="/blog/?q=SDLC">SDLC</a><a class="tag" href="/blog/?q=AI%20Agents">AI Agents</a><a class="tag" href="/blog/?q=Spec-Driven%20Development">Spec-Driven Development</a></div> </aside> <article class="prose article-main"> <header class="article-header"> <p class="eyebrow">ENGINEERING</p> <h1>Spec-Driven Delivery with OpenSpec and Claude Code: How the sdlc-workflow Starter Works</h1> <p class="article-deck">A walkthrough of the openspec-sdlc-starter package: the eleven-artifact schema, persona subagents, approval gates, post-apply batch, final review and cost tracking.</p> <div class="article-byline"><span>11 November 2026</span><span>·</span><span>14 min read</span></div> </header> <div class="article-content"><p>AI coding agents are fast, and that is the problem. An agent will happily start writing code before anyone has agreed on what the change is for. It skips the edge cases nobody mentioned, writes tests that assert nothing useful, and leaves the architecture notes a month out of date. By the time a human notices, the diff is large and the reasoning is gone.</p>
+<p><code>openspec-sdlc-starter</code> is my attempt to put a delivery process around that speed. It installs an OpenSpec schema called <code>sdlc-workflow</code>, a set of Claude Code subagent bindings, and two bootstrap prompts into a repository. The result is a fixed path for every change: an interview, a proposal, specs, a design, a test plan, a task list, implementation, end-to-end and performance tests, ledger updates, an adversarial review, and a cost report. Each step writes a file, and each file is a gate.</p>
+<p>This article explains how the whole thing works, from install to archive, and why it is built the way it is. The source is at <a href="https://github.com/sambasiva-dev/openspec-sdlc-starter">github.com/sambasiva-dev/openspec-sdlc-starter</a>.</p>
+<h2 id="the-short-version">The short version</h2>
+<ul>
+<li>The package copies files into your repo. It does not run a service or a daemon.</li>
+<li>A <strong>bootstrap prompt</strong> interviews you once and writes the project-specific files: <code>openspec/config.yaml</code>, <code>openspec/standards.md</code>, and the living ledgers.</li>
+<li>Every change then moves through <strong>eleven artifacts</strong> and an <strong>apply</strong> phase. Each artifact is written by a dedicated <strong>persona subagent</strong> with its own role prompt.</li>
+<li>Some artifacts are <strong>write-through</strong>: they write a per-change file and also merge into a repo-level ledger.</li>
+<li>A <strong>final review</strong> runs in an isolated context before archive. It grades findings and gives a verdict.</li>
+<li>A <strong>script</strong>, not a model, writes the cost report from the session logs.</li>
+</ul>
+<h2 id="what-gets-installed">What gets installed</h2>
+<p>Running the installer with <code>--agent claude --bootstrap greenfield</code> writes these files into your repository:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th align="left">Path</th><th align="left">Purpose</th></tr></thead><tbody><tr><td align="left"><code>openspec/schemas/sdlc-workflow/</code></td><td align="left">The schema, its templates, the cost tool and a pricing table</td></tr><tr><td align="left"><code>openspec/roles/</code></td><td align="left">Tool-independent role definitions for each persona</td></tr><tr><td align="left"><code>openspec/ORCHESTRATION.md</code></td><td align="left">Rules for the main session: dispatch, review depth, the post-apply batch</td></tr><tr><td align="left"><code>.claude/agents/</code></td><td align="left">Claude Code bindings that point each persona at its role file and pin its model</td></tr><tr><td align="left"><code>.claude/commands/opsx/</code> and <code>.claude/skills/openspec-*</code></td><td align="left">The slash commands and skills that drive the workflow</td></tr><tr><td align="left"><code>openspec/export-reference/config.reference.yaml</code></td><td align="left">A template with <code>&#x3C;FILL: ...></code> placeholders for the bootstrap to complete</td></tr><tr><td align="left"><code>openspec/bootstrap/</code></td><td align="left">The bootstrap prompt you paste into Claude Code</td></tr><tr><td align="left"><code>docs/specification.md</code>, <code>docs/design.md</code>, <code>docs/history/</code></td><td align="left">Empty living ledgers, created only if missing</td></tr></tbody></table>
+<p>The split between these files is deliberate. The schema and roles are <strong>portable</strong>: they contain no language, framework or domain specifics, so the same directory can be dropped into any repo. Everything project-specific goes into <code>openspec/config.yaml</code> and <code>openspec/standards.md</code>.</p>
+<h2 id="how-the-pieces-fit-together">How the pieces fit together</h2>
+<div class="expressive-code"><link rel="stylesheet" href="/assets/ec.y0rd3.css"><script type="module" src="/assets/ec.0vx5m.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="mermaid"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">flowchart TD</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">A["Bootstrap prompt&#x3C;br/>interview, then write config"] --> B["proposal&#x3C;br/>interview in rounds"]</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">B --> C["specs"]</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">C --> D["design"]</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">D --> E["test-plan"]</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">E --> F["tasks"]</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">F --> G["apply&#x3C;br/>main session, one task at a time"]</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">G --> H["Post-apply batch&#x3C;br/>per Artifact Plan"]</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">H --> H1["e2e-test"]</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">H --> H2["performance-test"]</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">H --> H3["business-specification"]</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">H --> H4["system-architecture"]</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">H1 --> I["final-code-review&#x3C;br/>isolated reviewer"]</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">H2 --> I</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">H3 --> I</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">H4 --> I</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">I --> J["cost-report&#x3C;br/>script"]</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">J --> K["archive"]</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="flowchart TD    A[&#x22;Bootstrap prompt<br/>interview, then write config&#x22;] --> B[&#x22;proposal<br/>interview in rounds&#x22;]    B --> C[&#x22;specs&#x22;]    C --> D[&#x22;design&#x22;]    D --> E[&#x22;test-plan&#x22;]    E --> F[&#x22;tasks&#x22;]    F --> G[&#x22;apply<br/>main session, one task at a time&#x22;]    G --> H[&#x22;Post-apply batch<br/>per Artifact Plan&#x22;]    H --> H1[&#x22;e2e-test&#x22;]    H --> H2[&#x22;performance-test&#x22;]    H --> H3[&#x22;business-specification&#x22;]    H --> H4[&#x22;system-architecture&#x22;]    H1 --> I[&#x22;final-code-review<br/>isolated reviewer&#x22;]    H2 --> I    H3 --> I    H4 --> I    I --> J[&#x22;cost-report<br/>script&#x22;]    J --> K[&#x22;archive&#x22;]"><div></div></button></div></figure></div>
+<p>Planning artifacts run in order, and each one requires the one before it. Apply runs in the main session because implementation needs to run tests, read failures and iterate across files. The post-apply batch runs next, and then the final review, which is the last gate before archive.</p>
+<h2 id="the-eleven-artifacts">The eleven artifacts</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th align="left">#</th><th align="left">Artifact</th><th align="left">Requires</th><th align="left">Writes</th><th align="left">Persona</th></tr></thead><tbody><tr><td align="left">1</td><td align="left"><code>proposal</code></td><td align="left">none</td><td align="left"><code>proposal.md</code>, <code>interview.md</code></td><td align="left">product-engineer</td></tr><tr><td align="left">2</td><td align="left"><code>specs</code></td><td align="left">proposal</td><td align="left"><code>specs/**/*.md</code></td><td align="left">product-engineer</td></tr><tr><td align="left">3</td><td align="left"><code>design</code></td><td align="left">specs</td><td align="left"><code>design.md</code></td><td align="left">principal-architect</td></tr><tr><td align="left">4</td><td align="left"><code>test-plan</code></td><td align="left">design</td><td align="left"><code>test-plan.md</code></td><td align="left">sdet-agent</td></tr><tr><td align="left">5</td><td align="left"><code>tasks</code></td><td align="left">test-plan</td><td align="left"><code>tasks.md</code></td><td align="left">tech-lead</td></tr><tr><td align="left">—</td><td align="left"><strong>apply</strong></td><td align="left">tasks</td><td align="left">tracks <code>tasks.md</code></td><td align="left">main session</td></tr><tr><td align="left">6</td><td align="left"><code>e2e-test</code></td><td align="left">proposal, tasks</td><td align="left"><code>e2e-test.md</code> plus the e2e suite</td><td align="left">automation-qa</td></tr><tr><td align="left">7</td><td align="left"><code>performance-test</code></td><td align="left">proposal, tasks</td><td align="left"><code>performance-test.md</code> plus load scripts</td><td align="left">performance-engineer</td></tr><tr><td align="left">8</td><td align="left"><code>business-specification</code></td><td align="left">proposal, tasks</td><td align="left"><code>business-specification.md</code> plus the product ledger</td><td align="left">product-engineer</td></tr><tr><td align="left">9</td><td align="left"><code>system-architecture</code></td><td align="left">proposal, tasks</td><td align="left"><code>system-architecture.md</code> plus the architecture ledger</td><td align="left">principal-architect</td></tr><tr><td align="left">10</td><td align="left"><code>final-code-review</code></td><td align="left">all four above</td><td align="left"><code>final-code-review.md</code></td><td align="left">senior-staff-reviewer</td></tr><tr><td align="left">11</td><td align="left"><code>cost-report</code></td><td align="left">final-code-review</td><td align="left"><code>cost-report.md</code></td><td align="left">script: <code>phase-cost.py</code></td></tr></tbody></table>
+<p>Artifacts 6 to 9 are <strong>selectable</strong>. The proposal declares which of them a change needs, so a small change does not have to produce a performance suite it cannot use. Artifact 10 always runs. Artifact 11 is generated by a script and is never written by a model.</p>
+<p>The four write-through artifacts (6, 7, 8 and 9) deserve a note. OpenSpec only allows <code>generates:</code> to point inside the change directory, so each of them writes a per-change record there and also merges into a repo-level file. For example, <code>business-specification</code> writes its per-change record into the change folder and then merges the functional change into <code>docs/specification.md</code>.</p>
+<h2 id="step-zero-the-bootstrap-interview">Step zero: the bootstrap interview</h2>
+<p>Install is one command. The real setup happens in Claude Code, where you paste the bootstrap prompt. The package ships two:</p>
+<ul>
+<li><code>greenfield.md</code> for a new repository with no code yet.</li>
+<li><code>brownfield.md</code> for an existing codebase.</li>
+</ul>
+<p>The greenfield prompt runs in five steps. Step 0 checks that the portable files exist and that <code>openspec/specs/</code> is empty, because a repo with existing specs is not greenfield. Step 1 reads whatever already exists, such as a README, a product brief or an ADR, and notes any <code>CLAUDE.md</code> for merging. Step 2 asks one round of questions. Step 3 writes the files, but only after you confirm a playback. Step 4 verifies the result.</p>
+<p>The brownfield prompt adds discovery. It learns the codebase before asking anything, runs the existing test suite to record a baseline, writes baseline specs that describe the as-is behaviour, and fills <code>docs/history/baseline.md</code>. The point is to stop the workflow from treating today’s accidental behaviour as a spec that nobody agreed to.</p>
+<p>Step 3 writes the project-owned files:</p>
+<ul>
+<li><strong><code>openspec/config.yaml</code></strong>. This holds a <code>context:</code> block with the domain, stack, testing tools, paths and conventions. It also holds per-artifact <code>rules:</code> that route each artifact to its persona and list the project’s risk triggers. Context is returned on every artifact call, so the prompt keeps it dense. Rules are returned only to the artifacts that need them.</li>
+<li><strong><code>openspec/standards.md</code></strong>. The implementation standards: language, logging, naming, error handling and domain-safety rules. The apply phase reads this before its first edit, and a MUST violation here is an automatic critical finding at review.</li>
+<li><strong><code>AGENT.md</code> and <code>CLAUDE.md</code></strong>. Entry points that tell any agent how to find the workflow.</li>
+<li><strong>Living ledgers</strong>. Index files plus per-component files. These are the long-lived record of what the product does and how it is built.</li>
+</ul>
+<p>Step 3 also writes a decisions record, so the choices made in the interview survive the session. Subagents cannot see the conversation, so anything that is not on disk is lost.</p>
+<h2 id="the-proposal-an-interview-before-a-draft">The proposal: an interview before a draft</h2>
+<p>The proposal is where most workflows fail, so this one is strict. The schema’s proposal instruction says plainly: <strong>interview first, do not draft on guesses</strong>. The instruction describes the cost of a wrong proposal in exactly these terms: every later artifact inherits it.</p>
+<p>The interview runs in rounds. The subagent researches the repository first, so it never asks a question the code can answer. It then asks every remaining gap in a single numbered list, at most eight questions, most important first. Each question says why the answer matters and offers concrete options with a recommendation where the space is small. After that, it writes a playback of at most ten lines and asks for confirmation. The target is two rounds plus the playback.</p>
+<p>The checklist the interview must establish covers the problem, actors and triggers, scope including what is explicitly out, business rules and money handling, failure and edge cases (idempotency, partial failure, downstream outages), integration points, non-functional needs, acceptance criteria and risk triggers.</p>
+<p>The proposal subagent runs in an isolated context and cannot ask the user anything directly. So the main session relays. It gives you the whole list verbatim, sends your answers back verbatim to the same subagent, and repeats until you confirm the playback. Every answer is recorded in <code>interview.md</code> with a numbered question and an answer. The main session never edits that file. That is the only trustworthy record of what you said.</p>
+<p>The proposal then has a few sections worth knowing:</p>
+<ul>
+<li><strong>What Changes</strong> and <strong>Capabilities</strong>. Capabilities are the contract with the specs phase. A <strong>New</strong> capability becomes a new spec file. A <strong>Modified</strong> capability points at an existing spec whose requirements change. The instruction insists on reusing existing capability paths instead of creating near-duplicates, and it forbids inventing a requirement just to satisfy validation.</li>
+<li><strong>Artifact Plan</strong>. A table that declares, for each selectable artifact, <code>Include</code> or <code>Exclude</code> with a one-line reason. An excluded artifact writes no file at all, so that line is the entire record of the decision. The rule is that absence of the table means everything is included. Absence is never exclusion.</li>
+<li><strong>Review Depth</strong>. One of <code>focused</code>, <code>standard</code> or <code>escalated</code>. It sets how deep the final review goes and which reviewer model runs it.</li>
+</ul>
+<h2 id="specs-design-test-plan-tasks">Specs, design, test plan, tasks</h2>
+<p><strong>Specs</strong> define behaviour and nothing else. The test is simple: if the implementation can change without changing externally visible behaviour, it does not belong in a spec. Each requirement uses <code>SHALL</code> or <code>MUST</code>, and each has at least one scenario. Scenarios use exactly four hashtags and a WHEN/THEN list. The schema is blunt about the failure mode: “Three, or a bullet, fails SILENTLY.” A spec delta can contain ADDED, MODIFIED, REMOVED and RENAMED requirement blocks. A MODIFIED block must carry the full updated requirement, because partial content loses detail at archive time.</p>
+<p>The scenarios are also a contract with tests. The spec instruction says each scenario maps one-to-one to a named test in the test plan, and that a scenario must assert a concrete value, state or error. The phrase “works correctly” is banned because nothing can check it.</p>
+<p><strong>Design</strong> is written when the change is cross-cutting, introduces a new pattern or dependency, changes the data model significantly, or carries security, performance or migration risk. It explains the decisions, meaning why X over Y, along with structure, contracts, risks and a migration plan. It also has an open-questions section, with a strict rule attached: if an answer would change the specs, the approach or the task breakdown, you ask the user now. Deferring it is not allowed.</p>
+<p><strong>Test plan</strong> maps every scenario to a test case, stating the component under test, the arrange-act-assert shape, what is mocked and what is real, and the setup needed for isolation. The test plan makes no red-first requirement. Tests are written alongside the code.</p>
+<p><strong>Tasks</strong> are where the workflow becomes mechanical. The checkbox format is parsed by the apply phase. A box containing only an <code>x</code>, in any case or spacing, counts as done. Every other marker, including <code>[~]</code>, <code>[-]</code> and <code>[]</code>, reads as unfinished. A line without a checkbox is not tracked at all. Each task is <code>- [ ] X.Y &#x3C;description></code>, groups use numbered <code>##</code> headings, and each task names how its completion is verified.</p>
+<h2 id="who-writes-what-personas-and-bindings">Who writes what: personas and bindings</h2>
+<p>The package splits each persona into two files, and the split matters.</p>
+<p>The <strong>role</strong> file, in <code>openspec/roles/&#x3C;role>.md</code>, holds the definition: the quality bars, the honesty rules and the working contract. It is tool-independent. The <strong>binding</strong>, in <code>.claude/agents/&#x3C;role>.md</code>, holds only the Claude Code specifics: the tool grant, the model, and a line that says “read the role file first.” The binding’s own description is explicitly marked as a catalogue entry, not instructions. That guards against a subagent acting on a one-line summary and silently skipping the rules.</p>
+<p>The routing is:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th align="left">Artifact</th><th align="left">Subagent</th><th align="left">Model</th></tr></thead><tbody><tr><td align="left">proposal, specs, business-specification</td><td align="left">product-engineer</td><td align="left">inherits the session model</td></tr><tr><td align="left">design, system-architecture</td><td align="left">principal-architect</td><td align="left">inherits</td></tr><tr><td align="left">test-plan</td><td align="left">sdet-agent</td><td align="left">inherits</td></tr><tr><td align="left">tasks</td><td align="left">tech-lead</td><td align="left">inherits</td></tr><tr><td align="left">e2e-test</td><td align="left">automation-qa</td><td align="left">inherits</td></tr><tr><td align="left">performance-test</td><td align="left">performance-engineer</td><td align="left">inherits</td></tr><tr><td align="left">final-code-review, Review Depth <code>focused</code> or <code>standard</code></td><td align="left">senior-staff-reviewer</td><td align="left">Sonnet 5.5</td></tr><tr><td align="left">final-code-review, Review Depth <code>escalated</code></td><td align="left">senior-staff-reviewer-escalated</td><td align="left">Opus 5.5, medium effort</td></tr></tbody></table>
+<p>Six authoring roles inherit the session’s model. The reviewer is pinned on purpose: the strength of the final review should not depend on whichever model the session happened to start with. The escalated reviewer is a separate binding over the same role file, so both reviewers apply identical standards and differ only in model.</p>
+<p>The main session follows a standing rule for every artifact:</p>
+<ol>
+<li>Run <code>openspec instructions &#x3C;artifact-id> --change &#x3C;name> --json</code> in the main session. This returns the template, the instruction, the context, the rules and the dependency paths.</li>
+<li>Dispatch the mapped subagent and pass it all of that. The <code>context</code> is explicitly not optional, because the schema is project-agnostic and the stack reaches the subagent only through it.</li>
+<li>Check that the artifact exists at the expected path, plus any write-through file.</li>
+</ol>
+<p>There is also a <strong>hard stop</strong> rule. If the mapped subagent type is not available, the main session stops and tells you. It must not write the artifact itself as a fallback. The orchestration document explains why this is the dominant failure mode: bindings register at session start, so a new or renamed agent does not exist until you restart Claude Code. A silent self-author looks exactly like a successful delegation, so the rule turns it into an error instead.</p>
+<p>Isolation is the core idea. The reviewer, in particular, has to be unable to rationalise the implementation it did not watch being written. That only works if its context contains the diff, the artifacts and the standards, and nothing about how the decisions were argued in the conversation.</p>
+<h2 id="apply-one-task-at-a-time-honestly">Apply: one task at a time, honestly</h2>
+<p><code>/opsx:apply</code> runs in the main session. Before its first edit, it reads <code>openspec/standards.md</code>. The process rules are short and non-negotiable:</p>
+<ul>
+<li>Write each task’s code and the tests the test plan names for it, together.</li>
+<li>Run the full suite after each task. Never mark a task complete on a red or skipped suite.</li>
+<li>Tick the checkbox only when the task is done and verified by the means the task names.</li>
+<li>Report honestly. If a task is blocked or only partly verified, say so. Never tick a box to keep momentum.</li>
+<li>Change no more than the tasks require. An unrelated refactor found mid-task is a finding to report, not work to fold in.</li>
+</ul>
+<p>The last rule matters more than it looks. Agents are very good at tidying code they touch, and a change that quietly expands in scope is hard to review.</p>
+<h2 id="the-post-apply-batch">The post-apply batch</h2>
+<p>When apply reports every task done and did not pause, the main session does not stop at “ready to archive.” It runs the <strong>post-apply batch</strong> in the same turn. This is the step most likely to be skipped without an explicit rule, so the package encodes it in three places: the orchestration document, the schema’s apply instruction, and the config’s <code>operations.apply.guidance</code>. The config copy exists because the CLI replaces the apply instruction with a fixed string the moment the last box is ticked.</p>
+<p>The batch works like this:</p>
+<ol>
+<li>Read the <code>## Artifact Plan</code> table in the proposal.</li>
+<li>Map each row to an artifact ID from <code>openspec status</code>. If a row names an ID that is not in the list, or the table is malformed, stop and ask. The rule is explicit: never fuzzy-match, because that is how a performance test silently disappears.</li>
+<li>Author the included artifacts in a fixed order: <code>e2e-test</code>, then <code>performance-test</code>, then <code>business-specification</code>, then <code>system-architecture</code>, then <code>final-code-review</code>, then <code>cost-report</code>.</li>
+<li>Do not spawn an excluded artifact just to let it decline. That costs a full instruction payload for nothing.</li>
+</ol>
+<p>The batch does not run if apply paused, if any task is still unticked, or if you interrupted. A half-built change should not produce end-to-end suites and ledger merges for code that does not exist.</p>
+<h3 id="the-end-to-end-and-performance-layers">The end-to-end and performance layers</h3>
+<p>These two artifacts write both a plan and runnable code. Their instructions are strict about what counts as a test.</p>
+<p>The <strong>e2e</strong> suite runs against a deployed instance over a real socket, because that is the only layer that catches a port that is not exposed or a route that is not registered. It reads the target from the environment and never hardcodes a host. Every test maps to a Given/When/Then journey, and each test body opens with matching comments. A test without a story, or a story without a test, is a review-blocking gap.</p>
+<p>The <strong>performance</strong> scripts encode every service level indicator as a threshold, so a breach fails the run instead of printing a number for someone to interpret. The instruction includes threshold calibration advice that I think is the most useful part of the whole package. It says to target what the code should achieve rather than a platform-wide SLO, because a 200 ms P95 on an endpoint with no dependencies “passes at roughly twenty times its real cost and detects nothing.” It says that for an endpoint touching no datastore or external system, the error-rate threshold is 0.00%, because an allowance would hide a host defect. It also says results stay <code>_pending_</code> until a run actually happens, so a target is never presented as an observed result.</p>
+<h3 id="the-living-ledgers">The living ledgers</h3>
+<p>The business and architecture artifacts keep two repo-level records current. They are split by component, and the index is kept small on purpose:</p>
+<ul>
+<li><code>docs/specification.md</code> is an index. Component files under <code>docs/spec/</code> hold journeys, business rules and a feature status matrix. The product ledger is entirely non-technical. It never names a datastore, endpoint or queue, because it describes what the business can now do.</li>
+<li><code>docs/design.md</code> is an index. Files under <code>docs/design/</code> hold the component diagrams, the data model, platform decisions and telemetry. Planned components are drawn dashed and labelled PLANNED. The instruction says that an inaccurate map is worse than no map.</li>
+</ul>
+<p>Two rules apply to both ledgers. Nothing is overwritten or purged. Superseded items move to <code>docs/history/specification-retired.md</code> or <code>docs/history/design-retired.md</code>, and the live file holds only current behaviour. And each change adds one line, under 200 characters with no lists, to a change log. The change log is the only history the live files need.</p>
+<p>The <code>ledger_reading</code> rule in the config adds one more constraint: never read a living ledger whole. Open the index, then only the component files the change touches. This keeps the cost of the business and architecture artifacts from growing with the size of the product.</p>
+<h2 id="final-review-the-last-gate">Final review: the last gate</h2>
+<p><code>final-code-review</code> is the step that gives this workflow its teeth. It runs in an isolated context, and its instruction opens with the rule that it is “the last gate before archive.”</p>
+<p>It reviews the diff against the tasks, the specs, the test artifacts, the design artifacts and the ledgers. It has to verify rather than assume. Every changed hunk must map to a task. Every spec scenario must have a test that actually asserts it. Every exclusion in the Artifact Plan must cite a validation that really exists. Every finding is graded <strong>CRITICAL</strong>, <strong>MAJOR</strong> or <strong>MINOR</strong>, with a <code>file:line</code> anchor and a concrete failure scenario. A finding with no reproducible consequence is dropped as noise. A violation of a MUST in <code>standards.md</code> is automatically critical.</p>
+<p>The review also checks the Artifact Plan against reality, because the plan was written before the code existed. The rules are:</p>
+<ul>
+<li>An excluded artifact that the diff now needs is a <strong>MAJOR</strong> “wrongly excluded” finding. If the trigger is one the project lists as high-risk, it is <strong>CRITICAL</strong>.</li>
+<li>An included artifact that is missing is a <strong>MAJOR</strong> finding, because the declared plan was not executed.</li>
+<li>An excluded artifact that exists anyway is a <strong>MINOR</strong> finding, because the plan and the repo disagree.</li>
+</ul>
+<p>The reviewer reports these and never re-decides the plan or writes the missing artifact itself.</p>
+<p>Depth works as a floor. <code>focused</code> means diff scope only. <code>standard</code> is the full production-readiness review. <code>escalated</code> means the review runs on the Opus binding. If the Sonnet reviewer finds a high-risk trigger the proposal did not anticipate, it raises the depth itself and says why. Its review then is not the final one, and the orchestrator re-dispatches to the escalated binding before archive.</p>
+<p>The verdict is one of <strong>PASSED</strong>, <strong>ATTENTION REQUIRED</strong> or <strong>REJECTED</strong>. The instruction ends with “Never pass a change to keep momentum.”</p>
+<h2 id="the-review-fixes-round">The review-fixes round</h2>
+<p>After the review, the findings go back to you in one message, and you decide once which to fix now and which to defer. The accepted findings become a single new task group in <code>tasks.md</code>, added by one dispatch to the tech lead. The fixes are implemented in one apply pass, and tests run once at the end rather than after every finding. Review is re-run only if a fix touched a risk trigger.</p>
+<p>The fixes count as their own cost phase, <code>review-fixes</code>, so the spend after review is visible and not hidden inside the apply total.</p>
+<h2 id="cost-tracking-without-trusting-the-model">Cost tracking without trusting the model</h2>
+<p>The final artifact is the cost report, and the design choice here is the one I find most convincing. No role writes it. <code>tools/phase-cost.py</code> reads the Claude Code session logs for the project, attributes each model response to a phase, prices it from <code>tools/pricing.json</code> and writes <code>cost-report.md</code> with one row per phase and a total.</p>
+<p>Attribution works in two ways. Subagent logs are attributed exactly, to the artifact they wrote. The main session’s turns are attributed by markers in the log, such as an <code>openspec instructions</code> call for a given artifact, the first code edit after <code>tasks.md</code> is written, or the archive command. A model missing from the pricing table is reported as unpriced, with its tokens shown but no cost guessed. The script is standard-library Python 3.9 or later.</p>
+<p>The orchestration rules say to run it with <code>--stdout</code> at every approval gate, so spend is visible while it can still change a decision. The report is written after the final review and again immediately before archive. The instructions say that if the script fails, the agent must stop and show you the output, never estimate a figure by hand. The report prints the <code>as_of</code> date of the pricing table, so a stale price list is visible.</p>
+<h2 id="fresh-sessions-at-phase-boundaries">Fresh sessions at phase boundaries</h2>
+<p>The orchestration document has a rule I did not expect to need. Every response re-sends the whole conversation, so cost is dominated by cache reads, and a turn late in a long session costs many times one early in it. Everything a later phase needs is already on disk. So at each boundary, once a phase is approved, the main session ends its turn with the running cost and tells you to run <code>/clear</code> and then a resume command:</p>
+<ul>
+<li>After the proposal: <code>/opsx:continue &#x3C;name></code>, or <code>/opsx:ff &#x3C;name></code> for the rest of the planning set.</li>
+<li>After <code>tasks.md</code>: <code>/opsx:apply &#x3C;name></code>.</li>
+<li>After the review and cost report: <code>/opsx:apply &#x3C;name></code> for fixes, or <code>/opsx:archive &#x3C;name></code>.</li>
+</ul>
+<p>The agent cannot clear the session itself, so it must not start the next phase in the same turn. Before suggesting the clear, it checks that every decision since the last boundary is written into an artifact or the config. Anything left in the conversation is lost.</p>
+<h2 id="known-limits">Known limits</h2>
+<p>I want to be direct about what does not work well yet.</p>
+<p><strong>The CLI cannot represent an exclusion.</strong> <code>openspec status</code> marks an artifact <code>ready</code> from its dependencies and whether its file exists. An artifact excluded in the Artifact Plan therefore reads <code>ready</code> forever, and the CLI keeps suggesting it. The only machine-readable skip is <code>skip_specs</code>, and that applies only to spec artifacts. So the guards are prompt-level: a conditional opener in each selectable artifact’s instruction, plus archive guidance in the config that stops the archive step from nagging about deliberate exclusions. This works, but it depends on the agent following text.</p>
+<p><strong>Install is not bootstrap.</strong> The installer copies files and skips anything that exists unless you pass <code>--overwrite</code>. The bootstrap prompt is what makes the repo yours, and it has to be run in Claude Code. Restart Claude Code afterwards, because agent bindings register only at session start.</p>
+<p><strong>The OpenSpec CLI must be on your PATH.</strong> The schema, the bootstrap and the slash commands all call <code>openspec</code>. If it is missing, the failure looks like a broken workflow rather than a missing tool.</p>
+<p><strong>Only Claude Code is supported.</strong> The <code>--agent</code> flag exists, but <code>claude</code> is the only accepted value. The role and binding split is designed so another agent could be added, but that work has not been done.</p>
+<p><strong>The workflow is heavy for small changes.</strong> A typo fix does not need an interview, a design, a performance suite and an Opus review. The Artifact Plan is the lever for this: a small change should declare most artifacts excluded, with reasons. Still, the minimum path is longer than many teams will want, and that is a real trade-off.</p>
+<h2 id="how-the-package-itself-is-built-and-shipped">How the package itself is built and shipped</h2>
+<p>The starter is also a small engineering project, and its build is worth a look.</p>
+<p>The repository root holds the source of truth: the schema, roles, bindings, commands, bootstrap prompts and ledger skeletons. The package lives in <code>sdlc-installer/</code>, and its <code>payload/</code> and <code>manifest.json</code> are generated, not hand-edited. <code>build.mjs</code> copies only the files listed in a <code>MAP</code> table, tags each one with its agent or bootstrap, stores dot-prefixed paths under safe names because static hosting drops them, and records a SHA-256 for every file.</p>
+<p>The build also acts as a guard. It refuses to produce a package if any text file contains an absolute home path or an email address. Because the payload is generated from the source tree, a personal path or address in a source file would otherwise ship to npm unnoticed, so the check runs on every build.</p>
+<p>On install, the shared core verifies each payload file against its recorded hash before writing, so a corrupt payload fails loudly. Files have one of two policies. <code>overwrite</code> applies to portable framework files and is replaced only with <code>--overwrite</code>. <code>create</code> applies to project ledgers and history and is written only when missing, never replaced. That split is what lets you upgrade the framework without losing your project’s history.</p>
+<p>The tests use the Node built-in test runner and cover the greenfield install, the brownfield install, the <code>--dry-run</code> behaviour (writes nothing), the rejection of an unsupported agent, and the rule that a re-run skips existing files. The publish workflow runs on version tags, runs the tests, and publishes to npm with provenance, using a repository secret.</p>
+<h2 id="who-this-is-for">Who this is for</h2>
+<p>I would use this if you already work with Claude Code, you want your agents to produce an audit trail rather than just code, and you have changes big enough that a proposal and a review are worth the time. It is less useful for exploratory work, prototypes or very small fixes.</p>
+<p>The most valuable parts, in my view, are not the artifact list. They are the rules that make the artifacts honest: an interview that does not draft on guesses, scenarios that cannot say “works correctly,” a reviewer that works in isolation, a cost figure that a script measures rather than a model estimates, and a ledger that records what is planned separately from what is built.</p>
+<p>Try it on a small repo first. Run the bootstrap, push one change through the planning set, and read the proposal’s Artifact Plan carefully. That table is where most of the process’s judgement sits.</p></div> <footer class="article-end"> <p class="eyebrow">KEEP EXPLORING</p> <h2>Good ideas get better when shared.</h2> <a class="button button-secondary" href="/blog/">More engineering notes →</a> </footer> </article> <aside class="toc-sidebar"><div class="toc"><p class="sidebar-label">ON THIS PAGE</p><nav aria-label="Table of contents"><a class="toc-link" href="#the-short-version">The short version</a><a class="toc-link" href="#what-gets-installed">What gets installed</a><a class="toc-link" href="#how-the-pieces-fit-together">How the pieces fit together</a><a class="toc-link" href="#the-eleven-artifacts">The eleven artifacts</a><a class="toc-link" href="#step-zero-the-bootstrap-interview">Step zero: the bootstrap interview</a><a class="toc-link" href="#the-proposal-an-interview-before-a-draft">The proposal: an interview before a draft</a><a class="toc-link" href="#specs-design-test-plan-tasks">Specs, design, test plan, tasks</a><a class="toc-link" href="#who-writes-what-personas-and-bindings">Who writes what: personas and bindings</a><a class="toc-link" href="#apply-one-task-at-a-time-honestly">Apply: one task at a time, honestly</a><a class="toc-link" href="#the-post-apply-batch">The post-apply batch</a><a class="toc-link toc-sub" href="#the-end-to-end-and-performance-layers">The end-to-end and performance layers</a><a class="toc-link toc-sub" href="#the-living-ledgers">The living ledgers</a><a class="toc-link" href="#final-review-the-last-gate">Final review: the last gate</a><a class="toc-link" href="#the-review-fixes-round">The review-fixes round</a><a class="toc-link" href="#cost-tracking-without-trusting-the-model">Cost tracking without trusting the model</a><a class="toc-link" href="#fresh-sessions-at-phase-boundaries">Fresh sessions at phase boundaries</a><a class="toc-link" href="#known-limits">Known limits</a><a class="toc-link" href="#how-the-package-itself-is-built-and-shipped">How the package itself is built and shipped</a><a class="toc-link" href="#who-this-is-for">Who this is for</a></nav></div></aside> </div> </main> <footer class="site-footer"> <div class="container footer-inner"> <p>© 2026 Sambasiva Reddy. Built with Astro and Markdown.</p> <div class="footer-links"> <a href="https://github.com/YOUR_GITHUB_USERNAME" target="_blank" rel="noreferrer">GitHub ↗</a> <a href="https://www.linkedin.com/in/sambasiva-reddy-patti/" target="_blank" rel="noreferrer">LinkedIn ↗</a> <a href="mailto:sivarunreddy@gmail.com">Email ↗</a> </div> </div> </footer> <script type="module" src="/assets/SiteLayout.astro_astro_type_script_index_0_lang.BS8LRnBd.js"></script> </body> </html>

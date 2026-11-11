@@ -27,24 +27,64 @@ import { ClientRouter } from 'astro:transitions';
     <Footer />
     <script>
       import mermaid from 'mermaid';
-      const enhanceMermaid = async () => {
-        const blocks = [...document.querySelectorAll<HTMLElement>('pre code.language-mermaid')];
-        blocks.forEach(code => {
-          const pre = code.closest('pre');
-          if (!pre || pre.dataset.mermaidEnhanced) return;
-          pre.dataset.mermaidEnhanced = 'true';
-          const diagram = document.createElement('pre');
-          diagram.className = 'mermaid';
-          diagram.textContent = code.textContent ?? '';
-          pre.replaceWith(diagram);
-        });
-        const diagrams = [...document.querySelectorAll<HTMLElement>('pre.mermaid:not([data-processed])')];
-        if (!diagrams.length) return;
-        mermaid.initialize({ startOnLoad: false, theme: document.documentElement.dataset.theme === 'light' ? 'default' : 'dark', securityLevel: 'strict' });
-        try { await mermaid.run({ nodes: diagrams }); }
-        catch (error) { console.error('Mermaid diagram rendering failed', error); }
-      };
-      enhanceMermaid();
+      mermaid.initialize({
+          startOnLoad: false,
+          theme: document.documentElement.dataset.theme === 'light' ? 'default' : 'dark',
+          securityLevel: 'strict',
+          flowchart: {
+              useMaxWidth: true,
+              htmlLabels: true,
+              curve: 'basis',
+              },
+          });
+      // Expressive Code renders ```mermaid fences as <pre data-language="mermaid">
+      // with one <div class="ec-line"> per source line (no newlines in textContent),
+      // so read the lines back individually. Plain <pre><code class="language-mermaid">
+      // is still supported as a fallback.
+      function mermaidSource(pre) {
+          const lines = pre.querySelectorAll('.ec-line');
+          if (lines.length) return [...lines].map(line => line.textContent || '').join('\n');
+          const code = pre.querySelector('code');
+          return (code ?? pre).textContent || '';
+      }
+
+      let mermaidCounter = 0;
+
+      async function renderMermaid() {
+          const blocks = document.querySelectorAll(
+              'pre[data-language="mermaid"], pre code.language-mermaid, pre code.lang-mermaid'
+              );
+
+          for (const block of blocks) {
+              const pre = block.tagName === 'PRE' ? block : block.closest('pre');
+
+              if (!pre || pre.dataset.mermaidRendered === 'true') continue;
+
+              pre.dataset.mermaidRendered = 'true';
+
+              const source = mermaidSource(pre);
+              const container = document.createElement('div');
+              container.className = 'mermaid-diagram';
+
+              try {
+                  const { svg } = await mermaid.render(
+                      `mermaid-diagram-${++mermaidCounter}`,
+                      source
+                      );
+
+                  container.innerHTML = svg;
+                  pre.replaceWith(container);
+              } catch (error) {
+                  console.error('Mermaid rendering failed:', error);
+                  pre.dataset.mermaidRendered = 'false';
+              }
+          }
+      }
+
+      document.addEventListener('astro:page-load', renderMermaid);
+      document.addEventListener('DOMContentLoaded', renderMermaid);
+
+      renderMermaid();
     </script>
   </body>
 </html>

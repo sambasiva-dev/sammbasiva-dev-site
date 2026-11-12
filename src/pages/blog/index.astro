@@ -5,7 +5,7 @@ import { getCollection } from 'astro:content';
 const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort((a,b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 const categories = ['All', ...new Set(posts.map(post => post.data.category))];
 ---
-<SiteLayout title="Engineering Blog — YourName.dev" description="Technical articles on architecture, AI engineering, cloud, frontend, and developer tooling." currentPath="/blog/">
+<SiteLayout title="Engineering Blog — sambasiva.dev" description="Technical articles on architecture, AI engineering, cloud, frontend, and developer tooling." currentPath="/blog/">
   <section class="page-hero container">
     <p class="eyebrow">THE ENGINEERING JOURNAL</p>
     <h1>Ideas, patterns, and <span class="text-gradient">implementation.</span></h1>

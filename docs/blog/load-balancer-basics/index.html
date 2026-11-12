@@ -1,0 +1,224 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="generator" content="Astro v5.18.2"><meta name="description" content="Why a single application server stops being enough, what a load balancer does, the common balancing algorithms, and how to choose between Apache, IIS and Nginx."><meta name="theme-color" content="#0b1120"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><title>Load Balancers Explained: Scaling Web Applications Beyond One Server — sambasiva.dev</title><link rel="canonical" href="https://www.sambasiva.dev/blog/load-balancer-basics/"><meta property="og:site_name" content="sambasiva.dev"><meta property="og:type" content="article"><meta property="og:title" content="Load Balancers Explained: Scaling Web Applications Beyond One Server — sambasiva.dev"><meta property="og:description" content="Why a single application server stops being enough, what a load balancer does, the common balancing algorithms, and how to choose between Apache, IIS and Nginx."><meta property="og:url" content="https://www.sambasiva.dev/blog/load-balancer-basics/"><meta property="og:image" content="https://www.sambasiva.dev/images/profile.jpg"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Load Balancers Explained: Scaling Web Applications Beyond One Server — sambasiva.dev"><meta name="twitter:description" content="Why a single application server stops being enough, what a load balancer does, the common balancing algorithms, and how to choose between Apache, IIS and Nginx."><meta name="twitter:image" content="https://www.sambasiva.dev/images/profile.jpg"><meta property="article:published_time" content="2015-05-08T00:00:00.000Z"><meta property="article:modified_time" content="2015-05-08T00:00:00.000Z"><meta property="article:tag" content="Load Balancing"><meta property="article:tag" content="Nginx"><meta property="article:tag" content="Scalability"><meta property="article:tag" content="Web Servers"><meta property="article:tag" content="Architecture"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Load Balancers Explained: Scaling Web Applications Beyond One Server","description":"Why a single application server stops being enough, what a load balancer does, the common balancing algorithms, and how to choose between Apache, IIS and Nginx.","url":"https://www.sambasiva.dev/blog/load-balancer-basics/","mainEntityOfPage":{"@type":"WebPage","@id":"https://www.sambasiva.dev/blog/load-balancer-basics/"},"datePublished":"2015-05-08T00:00:00.000Z","dateModified":"2015-05-08T00:00:00.000Z","author":{"@type":"Person","name":"Sambasiva Reddy","url":"https://www.sambasiva.dev/"},"publisher":{"@type":"Person","name":"Sambasiva Reddy","url":"https://www.sambasiva.dev/"},"articleSection":"Architecture","keywords":"Load Balancing, Nginx, Scalability, Web Servers, Architecture"}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><!-- <ClientRouter />--><link rel="stylesheet" href="/assets/tool_.css-DeeqtHM4.css"></head> <body> <header class="site-header"> <div class="container nav-wrap"> <a class="brand" href="/" aria-label="sambasiva.dev home"> <span class="brand-mark">S</span><span>sambasiva.dev</span> </a> <nav class="desktop-nav" aria-label="Main navigation"> <a class="nav-link" href="/">Home</a><a class="nav-link active" href="/blog/">Blog</a><a class="nav-link" href="/projects/">Projects</a><a class="nav-link" href="/expertise/">Expertise</a><a class="nav-link" href="/about/">About</a> <a class="nav-link" href="/tools/">Tools</a> </nav> <div class="nav-actions"> <a class="icon-link github-link" href="https://github.com/sambasiva-dev" target="_blank" rel="noreferrer" aria-label="GitHub">GH ↗</a> <button class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme"> <span class="theme-icon" aria-hidden="true">☼</span> </button> <script type="module">const e=document.querySelector(".theme-toggle"),o=document.documentElement,c=localStorage.getItem("theme");c==="light"&&(o.dataset.theme="light");e?.addEventListener("click",()=>{const t=o.dataset.theme==="light"?"dark":"light";o.dataset.theme=t,localStorage.setItem("theme",t);const n=e.querySelector(".theme-icon");n&&(n.textContent=t==="light"?"☾":"☼")});if(e&&o.dataset.theme==="light"){const t=e.querySelector(".theme-icon");t&&(t.textContent="☾")}</script> <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu"><span></span><span></span></button> </div> </div> <nav id="mobile-nav" class="mobile-nav" aria-label="Mobile navigation" hidden> <a class="nav-link" href="/">Home</a><a class="nav-link active" href="/blog/">Blog</a><a class="nav-link" href="/projects/">Projects</a><a class="nav-link" href="/expertise/">Expertise</a><a class="nav-link" href="/about/">About</a> <a class="nav-link" href="/tools/">Tools & utilities ↗</a> <a class="nav-link" href="mailto:sivarunreddy@gmail.com">Contact ↗</a> <a class="nav-link" href="https://github.com/sambasiva-dev" target="_blank" rel="noreferrer">GitHub ↗</a> </nav> </header> <script type="module">const e=document.querySelector(".menu-toggle"),n=document.querySelector("#mobile-nav");e?.addEventListener("click",()=>{const t=e.getAttribute("aria-expanded")==="true";e.setAttribute("aria-expanded",String(!t)),n&&(n.hidden=t)});</script> <main> <div class="container article-layout"> <aside class="article-sidebar"> <a class="back-link" href="/blog/">← All articles</a> <p class="sidebar-label">ARTICLE</p> <p class="sidebar-current">Load Balancers Explained: Scaling Web Applications Beyond One Server</p> <p class="sidebar-label">TOPICS</p> <div class="tag-list"><a class="tag" href="/blog/?q=Load%20Balancing">Load Balancing</a><a class="tag" href="/blog/?q=Nginx">Nginx</a><a class="tag" href="/blog/?q=Scalability">Scalability</a><a class="tag" href="/blog/?q=Web%20Servers">Web Servers</a><a class="tag" href="/blog/?q=Architecture">Architecture</a></div> </aside> <article class="prose article-main"> <header class="article-header"> <p class="eyebrow">ARCHITECTURE</p> <h1>Load Balancers Explained: Scaling Web Applications Beyond One Server</h1> <p class="article-deck">Why a single application server stops being enough, what a load balancer does, the common balancing algorithms, and how to choose between Apache, IIS and Nginx.</p> <div class="article-byline"><span>8 May 2015</span><span>·</span><span>10 min read</span></div> </header> <div class="article-content"><h2 id="overview">Overview</h2>
+<p>The World Wide Web is a major channel for almost every business, and the trend is toward building a web presence. Getting online is simple in principle: build a customer-facing web application and deploy it to a server. Suppose you start with the architecture below.</p>
+<p><img src="/blog/load-balancer/common_system.png" alt="Basic web architecture"></p>
+<p>An HTTP server takes incoming HTTP requests and passes them to the application server, which runs your application.</p>
+<p>For example, assume the application server can handle a maximum of 500 TPS (transactions per second). In other words, your application can process 500 requests every second.</p>
+<blockquote>
+<p><strong>Note:</strong> TPS depends on many factors, including the physical configuration of the server (memory, processor, network and so on) and the application’s architecture.</p>
+</blockquote>
+<p>As your business grows, so does the load on your server. At some point, 500 TPS is no longer enough. You can scale the server up by improving its configuration. This is called <strong>vertical scaling</strong>. But the load keeps growing, and eventually a single server can’t handle every request, however powerful it is. You then have to add another server.</p>
+<p>There are several reasons to run more than one server, each with the application deployed:</p>
+<ol>
+<li>You need more servers to handle more requests.</li>
+<li>Hardware or network failures can make a single server unreachable. A backup server, also called a <strong>failover server</strong>, keeps the service running.</li>
+<li>A natural disaster can take down the whole infrastructure in one location, so a server elsewhere is needed.</li>
+</ol>
+<p>So a serious online business needs more than one server. The HTTP server decides which application server handles each request. That raises three questions:</p>
+<ol>
+<li>How does the HTTP server know how many application servers exist and have the application deployed, and how do you configure several of them?</li>
+<li>On what basis does the HTTP server route requests to the application servers?</li>
+<li>How do you configure failover servers?</li>
+</ol>
+<p>The rest of this article answers these questions.</p>
+<h2 id="what-is-load-balancing">What is load balancing?</h2>
+<p>Load balancing distributes application requests across a group of servers. A load balancer uses different algorithms to decide where each request goes.</p>
+<p>This article focuses on load balancing for web applications, but the idea applies in many places, including:</p>
+<ul>
+<li>DNS load balancing</li>
+<li>HTTP load balancing</li>
+<li>SSL load balancing</li>
+<li>Network load balancing</li>
+<li>Database load balancing</li>
+<li>Cloud load balancing</li>
+</ul>
+<p>The diagram below shows the setup. The web server in the earlier diagram is replaced by a load balancer. A <strong>cluster</strong> is a group of servers that serve the same purpose. <strong>App Server 1</strong> and <strong>App Server 2</strong> are in one cluster.</p>
+<p><img src="/blog/load-balancer/load-balancer-pg.png" alt="Load balancer distributing requests across a cluster"></p>
+<h2 id="the-load-balancers-role">The load balancer’s role</h2>
+<p>A load balancer does four main jobs:</p>
+<ul>
+<li><strong>Route requests.</strong> It acts as a reverse proxy and spreads application traffic across the servers using the chosen algorithm.</li>
+<li><strong>Health checks.</strong> It checks the health of each server at regular intervals. If a server goes down, the load balancer stops sending requests to it. Once the server is back up, requests are routed to it again.</li>
+<li><strong>Session stickiness.</strong> It keeps track of previous requests so that a user is served by the same server. For example, if user U1 is served by server A, all of U1’s later requests go to server A. Stickiness is optional, and you can turn it on or off as needed. The load balancer can use the client IP address, a cookie or the URL to maintain it. Stickiness can work against the balancing algorithm.</li>
+<li><strong>Failover servers.</strong> You can keep a list of reserved or backup servers. If none of the primary servers can serve a request, the load balancer sends it to a backup server.</li>
+</ul>
+<h2 id="types-of-load-balancers">Types of load balancers</h2>
+<p>A load balancer can be a physical device or software. Choose based on your needs. <a href="https://f5.com/">F5 BIG-IP</a> is a widely used hardware load balancer, and it supports balancing across multiple data centers.</p>
+<p>Software load balancers work alongside HTTP servers. These are the most popular HTTP servers:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>HTTP server</th><th>Provider</th></tr></thead><tbody><tr><td>Apache</td><td>Apache</td></tr><tr><td>IIS</td><td>Microsoft</td></tr><tr><td>Nginx</td><td>NGINX, Inc.</td></tr><tr><td>GWS</td><td>Google</td></tr></tbody></table>
+<p><a href="http://news.netcraft.com/">Netcraft</a> runs a monthly survey of web server popularity, so you can follow the trend there.</p>
+<p>Both hardware and software load balancers exist, so which one to choose depends on your business requirements. Nginx has published an article on <a href="http://nginx.com/blog/five-reasons-use-software-load-balancer/">why you might choose a software load balancer</a>.</p>
+<h2 id="choosing-the-right-web-server">Choosing the right web server</h2>
+<p>Once you’ve decided to use a load balancer, choosing the right server software is the hard part. These are the factors to consider.</p>
+<h3 id="os-compatibility-security-and-features">OS compatibility, security and features</h3>
+<p>The table below compares Apache, IIS and Nginx, based on the <a href="http://en.wikipedia.org/wiki/Comparison_of_web_server_software">Wikipedia comparison of web server software</a>. Y means supported, N means not supported.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Server</th><th>Basic</th><th>Digest</th><th>Secure</th><th>Virtual hosting</th><th>CGI</th><th>Admin console</th><th>IPv6</th><th>HTTP/2</th><th>Windows</th><th>Linux</th><th>OS X</th><th>Solaris</th><th>OpenVMS</th><th>z/OS</th><th>HP-UX</th><th>IBM i</th></tr></thead><tbody><tr><td>Apache</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td></tr><tr><td>IIS</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>N</td><td>N</td><td>N</td><td>N</td><td>N</td><td>N</td><td>N</td></tr><tr><td>Nginx</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>N</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>Y</td><td>N</td><td>N</td><td>Y</td><td>N</td></tr></tbody></table>
+<h3 id="performance">Performance</h3>
+<p>Use open-source tools to measure web server performance. Examples include <a href="https://github.com/httperf/httperf">Httperf</a>, Apache Bench (<code>ab</code>) and <a href="https://jmeter.apache.org/">JMeter</a>. Disable all plug-ins before you benchmark. In the author’s survey at the time, Nginx was slightly faster than Apache.</p>
+<h3 id="balancing-algorithms">Balancing algorithms</h3>
+<p>Load balancing uses algorithms to decide how to spread requests across a cluster, much as an operating system uses scheduling algorithms. Choose the one that suits your cluster. The most common ones are:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Method</th><th>How it works</th><th>When to choose it</th></tr></thead><tbody><tr><td>Round robin</td><td>The default in most load balancers. Distributes requests evenly across all servers.</td><td>When all servers have the same capacity.</td></tr><tr><td>Weighted round robin</td><td>Like round robin, but each server has a weight. For example, if server A has weight 100 and server B has weight 50, server A gets two of every three requests and server B gets one.</td><td>When servers have different capacities.</td></tr><tr><td>Least connections</td><td>Sends each request to the server with the fewest active connections.</td><td>When servers have the same or different capacities, since it reacts to actual load.</td></tr></tbody></table>
+<p>You can also write rules in a load balancer that route requests based on HTTP headers, cookies or request data.</p>
+<h2 id="web-servers-and-load-balancing-methods">Web servers and load balancing methods</h2>
+<p>The table below lists the balancing methods each web server supports.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Web server</th><th>Algorithms supported</th></tr></thead><tbody><tr><td>Apache</td><td>Round robin, weighted round robin, least connections</td></tr><tr><td>IIS</td><td>Weighted round robin, weighted total traffic, least current request, least response time, server variable hash, query string hash, request hash</td></tr><tr><td>Nginx</td><td>Round robin, weighted round robin, least connections, IP hash</td></tr></tbody></table>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/Comparison_of_web_server_software">Comparison of web server software</a></li>
+<li><a href="http://nginx.org/en/docs/http/ngx_http_upstream_module.html">Nginx upstream module documentation</a></li>
+<li><a href="http://nginx.com/resources/admin-guide/load-balancer">Nginx load balancer admin guide</a></li>
+<li><a href="http://news.netcraft.com">Netcraft web server survey</a></li>
+</ul>
+<h2 id="key-takeaway">Key takeaway</h2>
+<p>A single server eventually runs out of capacity or fails. A load balancer spreads requests across a cluster, checks server health and provides failover. Pick the algorithm and web server that fit your cluster’s capacity, and keep session stickiness only where you need it.</p></div> <footer class="article-end"> <p class="eyebrow">KEEP EXPLORING</p> <h2>Good ideas get better when shared.</h2> <a class="button button-secondary" href="/blog/">More engineering notes →</a> </footer> </article> <aside class="toc-sidebar"><div class="toc"><p class="sidebar-label">ON THIS PAGE</p><nav aria-label="Table of contents"><a class="toc-link" href="#overview">Overview</a><a class="toc-link" href="#what-is-load-balancing">What is load balancing?</a><a class="toc-link" href="#the-load-balancers-role">The load balancer’s role</a><a class="toc-link" href="#types-of-load-balancers">Types of load balancers</a><a class="toc-link" href="#choosing-the-right-web-server">Choosing the right web server</a><a class="toc-link toc-sub" href="#os-compatibility-security-and-features">OS compatibility, security and features</a><a class="toc-link toc-sub" href="#performance">Performance</a><a class="toc-link toc-sub" href="#balancing-algorithms">Balancing algorithms</a><a class="toc-link" href="#web-servers-and-load-balancing-methods">Web servers and load balancing methods</a><a class="toc-link" href="#references">References</a><a class="toc-link" href="#key-takeaway">Key takeaway</a></nav></div></aside> </div> </main> <footer class="site-footer"> <div class="container footer-inner"> <p>© 2026 Sambasiva Reddy. Built with Astro and Markdown.</p> <div class="footer-links"> <a href="https://github.com/sambasiva-dev" target="_blank" rel="noreferrer">GitHub ↗</a> <a href="https://www.linkedin.com/in/sambasiva-reddy-patti/" target="_blank" rel="noreferrer">LinkedIn ↗</a> <a href="mailto:sivarunreddy@gmail.com">Email ↗</a> </div> </div> </footer> <script type="module" src="/assets/SiteLayout.astro_astro_type_script_index_0_lang.BS8LRnBd.js"></script> </body> </html>

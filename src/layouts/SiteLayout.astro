@@ -3,8 +3,23 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
-const { title = site.brand, description = site.intro, currentPath = Astro.url.pathname } = Astro.props;
+const {
+  title = site.brand,
+  description = site.intro,
+  currentPath = Astro.url.pathname,
+  type = 'website',
+  image = '/images/profile.jpg',
+  publishedTime,
+  modifiedTime,
+  tags = [],
+  jsonLd,
+} = Astro.props;
 import { ClientRouter } from 'astro:transitions';
+
+// Absolute URLs for search engines and social previews. Astro.site comes from astro.config.mjs.
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const imageUrl = new URL(image, Astro.site).href;
+const jsonLdBlocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 ---
 <!doctype html>
 <html lang="en" data-theme="dark">
@@ -16,6 +31,21 @@ import { ClientRouter } from 'astro:transitions';
     <meta name="theme-color" content="#0b1120" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
+    <link rel="canonical" href={canonical} />
+    <meta property="og:site_name" content={site.brand} />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={imageUrl} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+    {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
+    {tags.map(tag => <meta property="article:tag" content={tag} />)}
+    {jsonLdBlocks.map(data => <script type="application/ld+json" set:html={JSON.stringify(data).replace(/</g, '\\u003c')} />)}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />

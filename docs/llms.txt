@@ -1,0 +1,27 @@
+# Sambasiva Reddy
+
+> I design and build scalable software systems, explore emerging technologies, mentor engineers to grow, and share the practical lessons I learn along the way.
+
+Technology Leader · Software Architect · Engineer. From code to architecture. From experience to shared knowledge.
+
+## Articles
+
+- [Spec-Driven Delivery with OpenSpec and Claude Code: How the sdlc-workflow Starter Works](https://www.sambasiva.dev/blog/openspec-sdlc-workflow/): A walkthrough of the openspec-sdlc-starter package: the eleven-artifact schema, persona subagents, approval gates, post-apply batch, final review and cost tracking.
+- [Designing Multi-Tenant Services with Spring Boot](https://www.sambasiva.dev/blog/multi-tenant-spring-boot/): A practical starting point for tenant identification, isolation, and service design.
+- [Building an Agentic RAG Workflow](https://www.sambasiva.dev/blog/agentic-rag-workflow/): A conceptual walkthrough of retrieval, orchestration, and grounded generation.
+- [A Practical Approach to Kong Plugin Engineering](https://www.sambasiva.dev/blog/kong-plugin-engineering/): Structure plugin configuration, request processing, and tests before adding complexity.
+- [Spring Kafka Integration with Kerberos Authentication](https://www.sambasiva.dev/blog/spring-kafka-kerberos-authentication/): How Kerberos ticket-based authentication works, how to create a krb5 configuration and keytab, and how to connect a Spring Boot Kafka producer to a Kerberos-secured cluster.
+- [Single Sign-On with Spring and SAML 2.0](https://www.sambasiva.dev/blog/spring-saml-single-sign-on/): How SAML 2.0 single sign-on works, the terms you need, and how to wire a Spring Boot service provider to the OneLogin identity provider with the Spring SAML DSL.
+- [React vs Angular: A Hands-On Comparison](https://www.sambasiva.dev/blog/react-vs-angular/): Comparing React and Angular in practice: trends, learning curve, tooling, portability, architecture, templates, data binding, control statements and component communication, with side-by-side code.
+- [Loading Components Dynamically in Angular](https://www.sambasiva.dev/blog/load-component-dynamically-in-angular/): Two ways to switch between components in Angular: conditional rendering with NgIf and NgSwitch, and creating components at runtime with ViewContainerRef, with a note on what changed in recent Angular versions.
+- [Free Website Hosting with GitHub Pages](https://www.sambasiva.dev/blog/free-website-hosting-with-github-pages/): How to host a static website on GitHub Pages for free and map your own domain to it, with the GitHub and DNS steps and how to verify the setup.
+- [Java 8 Lambda Expressions: A Practical Introduction](https://www.sambasiva.dev/blog/java-8-lambda-expressions/): What lambda expressions are, how functional interfaces make them work, how they differ from anonymous classes, and how they simplify iterating collections.
+- [Configuring Nginx as a Load Balancer](https://www.sambasiva.dev/blog/nginx-load-balancer-configuration/): A hands-on guide to running two application instances behind Nginx: upstream clusters, round robin, weighted and least-connections algorithms, backup and failover servers, and session stickiness.
+- [Load Balancers Explained: Scaling Web Applications Beyond One Server](https://www.sambasiva.dev/blog/load-balancer-basics/): Why a single application server stops being enough, what a load balancer does, the common balancing algorithms, and how to choose between Apache, IIS and Nginx.
+
+## Pages
+
+- [Blog](https://www.sambasiva.dev/blog/): All engineering articles
+- [Expertise](https://www.sambasiva.dev/expertise/): Technology experience across backend, frontend, cloud, AI and data
+- [Projects](https://www.sambasiva.dev/projects/): Engineering case studies and developer tools
+- [Tools](https://www.sambasiva.dev/tools/): Browser-based developer tools

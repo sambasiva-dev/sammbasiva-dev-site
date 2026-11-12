@@ -1,10 +1,12 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import expressiveCode from 'astro-expressive-code';
+import sitemap from '@astrojs/sitemap';
 
 // Other imports can remain as they are.
 
 export default defineConfig({
+  site: 'https://www.sambasiva.dev',
   outDir: './docs',
   build:{
     assets: 'assets'
@@ -37,5 +39,6 @@ export default defineConfig({
   integrations: [
     expressiveCode(),
     mdx(),
+    sitemap(),
   ],
 });

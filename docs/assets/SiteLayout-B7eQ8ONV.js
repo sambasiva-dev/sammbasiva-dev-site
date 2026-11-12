@@ -1,4 +1,4 @@
-import { c as createComponent, m as maybeRenderHead, f as renderScript, b as renderTemplate, a as addAttribute, e as renderComponent, d as createAstro, j as renderHead, r as renderSlot } from './astro/server-33mZK7WG.js';
+import { c as createComponent, m as maybeRenderHead, e as renderScript, a as renderTemplate, b as addAttribute, r as renderComponent, d as createAstro, j as renderHead, f as renderSlot } from './astro/server-Cb1qvv7l.js';
 import 'piccolore';
 /* empty css                        */
 import 'clsx';
@@ -10,7 +10,7 @@ const site = {
   intro: "I design and build scalable software systems, explore emerging technologies, mentor engineers to grow, and share the practical lessons I learn along the way.",
   experience: "22+",
   email: "sivarunreddy@gmail.com",
-  github: "https://github.com/YOUR_GITHUB_USERNAME",
+  github: "https://github.com/sambasiva-dev",
   linkedin: "https://www.linkedin.com/in/sambasiva-reddy-patti/",
   expertise: [
     { icon: "⌘", title: "Architecture", description: "Distributed systems, microservices, design patterns" },
@@ -19,12 +19,14 @@ const site = {
     { icon: "↗", title: "Cloud & DevOps", description: "CI/CD, cloud-native delivery, observability" }
   ],
   skills: {
+    "Domains": ["Banking", "Insurance", "eCommerce", "Retail", "Supply Chain"],
     "Backend": ["Java", "Spring Boot", ".NET", "Node.js", "Microservices"],
     "Frontend": ["JavaScript", "React", "Angular", "Vue", "Webpack", "Vite"],
-    "Cloud & DevOps": ["AWS", "Azure", "Jenkins", "Azure DevOps", "GitHub Actions"],
-    "AI & Data": ["Claude", "LangChain", "RAG", "PostgreSQL", "MongoDB", "Oracle", "Apache Druid"],
-    "Platforms": ["Kong Gateway", "Apache NiFi", "Apache Doris", "StarRocks", "Cassandra"],
-    "Domains": ["Banking", "Insurance", "eCommerce", "Retail", "Supply Chain"]
+    "Cloud & DevOps": ["AWS", "Azure", "Jenkins", "Azure DevOps", "GitHub Actions", "Kubernetes", "Docker"],
+    "Databases": ["MSSQL", "PostgreSQL", "MongoDB", "Redis", "Elasticsearch", "MongoDB", "Oracle"],
+    "AI & Data": ["LangChain", "OpenAI API", "Claude API", "RAG", "Vector Databases", "Claude code", "Apache Druid", "Cassandra", "StarRocks", "Azure Data Lake", "Apache NiFi"],
+    "Testing & QA": ["JUnit", "Selenium", "Cypress", "Jest", "Mocha"],
+    "Other Tools": ["Git", "Terraform", "Ansible", "Prometheus", "Grafana"]
   }
 };
 

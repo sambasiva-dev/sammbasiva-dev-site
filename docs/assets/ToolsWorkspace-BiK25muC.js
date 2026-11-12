@@ -1,6 +1,6 @@
-import { c as createComponent, e as renderComponent, b as renderTemplate, d as createAstro, m as maybeRenderHead, a as addAttribute, f as renderScript } from './astro/server-33mZK7WG.js';
+import { c as createComponent, r as renderComponent, a as renderTemplate, d as createAstro, m as maybeRenderHead, b as addAttribute, e as renderScript } from './astro/server-Cb1qvv7l.js';
 import 'piccolore';
-import { $ as $$SiteLayout } from './SiteLayout-_E1J3iE_.js';
+import { $ as $$SiteLayout } from './SiteLayout-B7eQ8ONV.js';
 
 const $$Astro = createAstro();
 const $$ToolsWorkspace = createComponent(async ($$result, $$props, $$slots) => {

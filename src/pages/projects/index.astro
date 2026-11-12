@@ -1,10 +1,13 @@
 ---
 import SiteLayout from '../../layouts/SiteLayout.astro';
+const generateLink = (project: any) => project.link.path === 'Email' ? `mailto:your.email@example.com?subject=${encodeURIComponent(`Project details: ${project.title}`)}` : project.link.path;
+
 const projects = [
-  { number:'01', title:'Agentic RAG Toolkit', category:'AI Engineering', description:'A reference implementation for retrieval, tool orchestration, grounded generation, and evaluation.', stack:['Python','LangChain','Vector DB'], status:'Reference project' },
-  { number:'02', title:'Kong API Gateway Plugin', category:'API Management', description:'A plugin engineering case study covering request lifecycle, configuration, error handling, and automated tests.', stack:['Kong','Lua','REST'], status:'Technical case study' },
-  { number:'03', title:'Micro Frontend Starter', category:'Frontend Architecture', description:'An example foundation for modular frontends, shared navigation, independent delivery, and build tooling.', stack:['React','Webpack','Vite'], status:'Starter concept' },
-  { number:'04', title:'Reusable CI/CD Templates', category:'DevOps', description:'Reusable pipeline patterns for consistent validation, build, security checks, and release automation.', stack:['GitHub Actions','Docker','CI/CD'], status:'Reference project' }
+  { title:'Openspec SDLC SDD starter', category:'AI Engineering', description:'openspec-sdlc-starter equips your repository with Claude Code subagent bindings and dual bootstrap prompts, enabling specification-driven feature development for both greenfield and brownfield projects.', stack:["OpenSpec", "Claude Code", "SDLC", "AI Agents", "Spec-Driven Development", "Python", "Node.js"], status:'Reference project', link:{label:"Project Reference", path:"https://github.com/sambasiva-dev/openspec-sdlc-starter"}},
+  { title:'Agentic RAG Toolkit', category:'AI Engineering', description:'A reference implementation for retrieval, tool orchestration, grounded generation, and evaluation.', stack:['Python','LangChain','Vector DB'], status:'Reference project', link:{label:"Ask about this project", path:"Email"} },
+  { title:'Kong API Gateway Plugin', category:'API Management', description:'A plugin engineering case study covering request lifecycle, configuration, error handling, and automated tests.', stack:['Kong','Lua','REST'], status:'Technical case study', link:{label:"Ask about this project", path:"Email"} },
+  { title:'Micro Frontend Starter', category:'Frontend Architecture', description:'An example foundation for modular frontends, shared navigation, independent delivery, and build tooling.', stack:['React','Webpack','Vite'], status:'Starter concept', link:{label:"Ask about this project", path:"Email"} },
+  { title:'Reusable CI/CD Templates', category:'DevOps', description:'Reusable pipeline patterns for consistent validation, build, security checks, and release automation.', stack:['GitHub Actions','Docker','CI/CD'], status:'Reference project', link:{label:"Ask about this project", path:"Email"} },
 ];
 ---
 <SiteLayout title="Projects & Tools — YourName.dev" description="Engineering case studies, developer tools, and architecture examples." currentPath="/projects/">
@@ -15,14 +18,13 @@ const projects = [
   </section>
   <section class="section container">
     <div class="project-grid">
-      {projects.map(project => <article class="project-card">
-        <div class="project-card-top"><span class="project-number">{project.number}</span><span class="project-status">{project.status}</span></div>
+      {projects.map((project, index) => <article class="project-card">
+        <div class="project-card-top"><span class="project-number">{index + 1}</span><span class="project-status">{project.status}</span></div>
         <p class="eyebrow">{project.category.toUpperCase()}</p>
         <h2>{project.title}</h2><p>{project.description}</p>
         <div class="tag-list">{project.stack.map(item => <span class="tag">{item}</span>)}</div>
-        <a class="card-link" href={`mailto:your.email@example.com?subject=${encodeURIComponent(`Project details: ${project.title}`)}`}>Ask about this project <span>↗</span></a>
+        <a class="card-link" href={generateLink(project)} target={project.link.path === 'Email' ? 'self' : '_blank'}>{project.link.label}<span>↗</span></a>
       </article>)}
     </div>
-    <p class="content-note">These are starter project concepts. Replace them with real repositories, demos, and case studies before presenting them as completed work.</p>
   </section>
 </SiteLayout>

@@ -1,5 +1,5 @@
 async function getMod() {
-						return import('./agentic-rag-workflow-DXkd1Eg7.js');
+						return import('./agentic-rag-workflow-BQaXlsSv.js');
 					}
 					const collectedLinks = [];
 					const collectedStyles = [];

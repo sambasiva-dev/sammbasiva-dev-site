@@ -3,7 +3,7 @@ import { Traverse } from 'neotraverse/modern';
 import pLimit from 'p-limit';
 import { z } from 'zod';
 import { removeBase, isRemotePath, prependForwardSlash } from '@astrojs/internal-helpers/path';
-import { A as AstroError, R as RenderUndefinedEntryError, c as createComponent, u as unescapeHTML, b as renderTemplate, U as UnknownContentCollectionError, g as renderUniqueStylesheet, h as renderScriptElement, i as createHeadAndContent, e as renderComponent } from './astro/server-33mZK7WG.js';
+import { A as AstroError, R as RenderUndefinedEntryError, c as createComponent, u as unescapeHTML, a as renderTemplate, U as UnknownContentCollectionError, g as renderUniqueStylesheet, h as renderScriptElement, i as createHeadAndContent, r as renderComponent } from './astro/server-Cb1qvv7l.js';
 import 'piccolore';
 import * as devalue from 'devalue';
 
@@ -97,7 +97,7 @@ class ImmutableDataStore {
    */
   static async fromModule() {
     try {
-      const data = await import('./astro_data-layer-content-Bqdw5OGF.js');
+      const data = await import('./astro_data-layer-content-C8j-3z97.js');
       if (data.default instanceof Map) {
         return ImmutableDataStore.fromMap(data.default);
       }
@@ -255,7 +255,7 @@ const CONTENT_LAYER_IMAGE_REGEX = /__ASTRO_IMAGE_="([^"]+)"/g;
 async function updateImageReferencesInBody(html, fileName) {
   const { default: imageAssetMap } = await import('./content-assets-DleWbedO.js');
   const imageObjects = /* @__PURE__ */ new Map();
-  const { getImage } = await import('./astro_assets-hElRI1p4.js').then(n => n._);
+  const { getImage } = await import('./astro_assets-FWcniP72.js').then(n => n._);
   for (const [_full, imagePath] of html.matchAll(CONTENT_LAYER_IMAGE_REGEX)) {
     try {
       const decodedImagePath = JSON.parse(imagePath.replaceAll("&#x22;", '"'));
@@ -317,7 +317,7 @@ async function renderEntry(entry) {
   }
   if (entry.deferredRender) {
     try {
-      const { default: contentModules } = await import('./content-modules-BJUNTeK0.js');
+      const { default: contentModules } = await import('./content-modules-BygCclwy.js');
       const renderEntryImport = contentModules.get(entry.filePath);
       return render({
         collection: "",
